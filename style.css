@@ -1,0 +1,200 @@
+/* Grundlayout */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --text: #222;
+  --muted: #666;
+  --bg: #fdfcfa;
+  --line: #e4e0da;
+  --accent: #d9772b;
+  --placeholder: #efebe5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #eee;
+    --muted: #aaa;
+    --bg: #1a1a1a;
+    --line: #333;
+    --accent: #f0a060;
+    --placeholder: #2a2a2a;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+}
+
+main,
+footer {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+main {
+  padding-top: 2.5rem;
+}
+
+/* Typografie */
+h1 {
+  font-size: 2.25rem;
+  margin: 0 auto 1.5rem;
+  border-bottom: 3px solid var(--accent);
+  display: table;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 2.5rem 0 1rem;
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+/* Portrait */
+figure {
+  margin: 0;
+}
+
+.portrait {
+  max-width: 360px;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+figcaption {
+  font-size: 0.875rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
+
+/* Tabelle */
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+}
+
+th {
+  border-bottom: 2px solid var(--accent);
+}
+
+td:first-child {
+  white-space: nowrap;
+}
+
+/* Galerie 1x3 */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.placeholder {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--placeholder);
+  color: var(--muted);
+  border-radius: 8px;
+}
+
+.gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-bottom: 2rem;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+/* Mobil */
+@media (max-width: 600px) {
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  main {
+    padding-top: 1.5rem;
+  }
+
+  .gallery {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tabelle als Karten darstellen */
+  thead {
+    display: none;
+  }
+
+  table,
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
+
+  tr {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  td {
+    border: none;
+    padding: 0.1rem 0;
+  }
+
+  td:first-child {
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  td:nth-child(3),
+  td:nth-child(4) {
+    display: inline;
+    font-size: 0.875rem;
+    color: var(--muted);
+  }
+
+  td:nth-child(3)::after {
+    content: " · ";
+  }
+}
