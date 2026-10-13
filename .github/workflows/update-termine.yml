@@ -1,0 +1,53 @@
+# Aktualisiert assets/termine.json aus dem öffentlichen iCloud-Kalender.
+# Die Kalender-URL kommt ausschließlich aus dem Repository-Secret CALENDAR_URL.
+name: Termine aktualisieren
+
+on:
+  schedule:
+    # Alle 3 Stunden (UTC); Minute 17 statt 0, weil zur vollen Stunde viele Jobs anstehen
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# Nie zwei Läufe gleichzeitig – sonst könnten sich die Commits in die Quere kommen
+concurrency:
+  group: update-termine
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v5
+
+      - name: Python einrichten
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - name: Abhängigkeiten installieren
+        run: pip install -r scripts/requirements.txt
+
+      # Bricht das Skript ab (Exit-Code 1), schlägt der Job fehl und es wird nichts committet
+      - name: Kalender in JSON umwandeln
+        env:
+          CALENDAR_URL: ${{ secrets.CALENDAR_URL }}
+        run: python scripts/ics_to_json.py
+
+      - name: Commit, falls sich die Termine geändert haben
+        run: |
+          if [ -z "$(git status --porcelain -- assets/termine.json)" ]; then
+            echo "Keine Änderungen an assets/termine.json."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/termine.json
+          git commit -m "Termine aktualisieren"
+          git push

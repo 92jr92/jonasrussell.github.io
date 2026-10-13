@@ -54,6 +54,8 @@
               aria-selected="false" aria-controls="panel-news" tabindex="-1">News</button>
       <button type="button" class="tab" role="tab" id="tab-projects"
               aria-selected="false" aria-controls="panel-projects" tabindex="-1">Projects</button>
+      <button type="button" class="tab" role="tab" id="tab-termine"
+              aria-selected="false" aria-controls="panel-termine" tabindex="-1">Termine</button>
     </nav>
   </header>
 
@@ -174,6 +176,16 @@
           <p>Diese Seite: HTML, CSS und Vanilla-JavaScript, gehostet auf GitHub Pages.</p>
           <a class="card-link" href="https://github.com/USERNAME/jonasrussell.github.io" target="_blank" rel="noopener noreferrer">Quellcode <span aria-hidden="true">→</span></a>
         </article>
+      </div>
+    </section>
+
+    <!-- ===== Tab 4: Termine (Inhalt wird per JS aus assets/termine.json geladen;
+         die Datei aktualisiert die GitHub Action .github/workflows/update-termine.yml) ===== -->
+    <section class="tab-panel" role="tabpanel" id="panel-termine" aria-labelledby="tab-termine" tabindex="0" hidden>
+      <h2>Termine</h2>
+      <p class="lead">Meine Studientermine der nächsten vier Wochen.</p>
+      <div class="termine-list" id="termine-list" aria-live="polite">
+        <p class="status">Termine werden geladen …</p>
       </div>
     </section>
   </main>

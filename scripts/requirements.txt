@@ -1,0 +1,5 @@
+# Abhängigkeiten für scripts/ics_to_json.py (feste Versionen = reproduzierbare Läufe)
+icalendar==7.3.0
+recurring-ical-events==3.8.2
+# Zeitzonendaten für zoneinfo – nötig unter Windows, auf Linux harmlos
+tzdata==2026.5

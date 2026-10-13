@@ -1,0 +1,37 @@
+[
+  {
+    "title": "Geodätische Ausgleichungsrechnung (Vorlesung)",
+    "start": "2026-10-13T08:15:00+02:00",
+    "end": "2026-10-13T09:45:00+02:00",
+    "allDay": false,
+    "location": "D 1.12"
+  },
+  {
+    "title": "Web-Mapping (Übung)",
+    "start": "2026-10-13T14:00:00+02:00",
+    "end": "2026-10-13T15:30:00+02:00",
+    "allDay": false,
+    "location": "C 2.05"
+  },
+  {
+    "title": "Geodatenbanken (Vorlesung)",
+    "start": "2026-10-14T10:00:00+02:00",
+    "end": "2026-10-14T11:30:00+02:00",
+    "allDay": false,
+    "location": "D 2.21"
+  },
+  {
+    "title": "Exkursion Vulkaneifel",
+    "start": "2026-10-16T00:00:00+02:00",
+    "end": "2026-10-17T00:00:00+02:00",
+    "allDay": true,
+    "location": ""
+  },
+  {
+    "title": "Fernerkundung (Vorlesung)",
+    "start": "2026-10-19T12:15:00+02:00",
+    "end": "2026-10-19T13:45:00+02:00",
+    "allDay": false,
+    "location": "A 0.07"
+  }
+]

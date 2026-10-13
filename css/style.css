@@ -7,6 +7,7 @@
    4. Karten (allgemein)
    5. About: Portrait, Lebenslauf, Galerie
    6. News & Projects
+   6b. Termine
    7. Kontakt-Links (fixiert)
    8. Breakpoints (Mobile-first: min-width)
    9. Reduzierte Bewegung
@@ -221,7 +222,7 @@ figcaption {
 .tab {
   position: relative;
   flex: 1 1 0;
-  padding: 0.7rem 1rem;
+  padding: 0.7rem 0.5rem; /* mobil schmaler, damit vier Tabs nebeneinander passen */
   border: none;
   background: none;
   color: var(--muted);
@@ -505,6 +506,131 @@ td:nth-child(3)::after {
   transform: translateX(4px);
 }
 
+/* ---------- 6b. Termine ---------- */
+
+.termine-list {
+  display: grid;
+  gap: 1.75rem;
+}
+
+.termine-day-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+}
+
+.termine-day-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+/* Akzentstreifen links kennzeichnet Termin-Karten */
+.termin-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid var(--accent);
+}
+
+.termin-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.termin-card h4 {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.3;
+}
+
+.termin-time {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.termin-room {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.termin-room svg {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+/* Bereits beendete Termine von heute: abgedunkelt, ohne Hover-Effekt */
+.termin-card.is-past {
+  opacity: 0.55;
+  border-left-color: var(--line);
+  box-shadow: none;
+}
+
+.termin-card.is-past:hover {
+  transform: none;
+}
+
+.termin-card.is-past .termin-time {
+  color: var(--muted);
+}
+
+/* Laufender Termin: leicht hervorgehobener Hintergrund */
+.termin-card.is-now {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+
+/* Kleine Etiketten ("Heute", "Morgen", "Läuft gerade", "Beendet") */
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.badge-soft {
+  background: var(--placeholder);
+  color: var(--text);
+}
+
+/* Nur für Screenreader sichtbar (z. B. "Raum: " vor der Raumnummer) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- 7. Kontakt-Links (fixiert unten rechts) ---------- */
 
 .contact-links {
@@ -572,11 +698,13 @@ footer {
 
   .tab {
     flex: 0 0 auto;
+    padding: 0.7rem 1rem;
   }
 
   .gallery,
   .card-grid,
-  .news-list {
+  .news-list,
+  .termine-day-list {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -640,7 +768,8 @@ footer {
   }
 
   .card-grid,
-  .news-list {
+  .news-list,
+  .termine-day-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }
