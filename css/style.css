@@ -1,83 +1,126 @@
-/* Grundlayout */
+/* =========================================================
+   Persönliche Webseite – Stylesheet
+   Aufbau:
+   1. Theme-Variablen (Light / Night)
+   2. Grundlayout & Typografie
+   3. Header, Theme-Schalter, Tabs
+   4. Karten (allgemein)
+   5. About: Portrait, Lebenslauf, Galerie
+   6. News & Projects
+   7. Kontakt-Links (fixiert)
+   8. Breakpoints (Mobile-first: min-width)
+   9. Reduzierte Bewegung
+   ========================================================= */
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+/* ---------- 1. Theme-Variablen ---------- */
+
+/* Light Mode (Standard) */
 :root {
   --text: #222;
   --muted: #666;
   --bg: #fdfcfa;
+  --surface: #ffffff;
   --line: #e4e0da;
   --accent: #d9772b;
+  --accent-contrast: #ffffff;
   --placeholder: #efebe5;
+  --shadow: 0 1px 2px rgba(60, 40, 20, 0.06), 0 4px 14px rgba(60, 40, 20, 0.08);
+  --shadow-hover: 0 2px 4px rgba(60, 40, 20, 0.08), 0 12px 28px rgba(60, 40, 20, 0.14);
+  --radius: 14px;
+  --radius-sm: 8px;
+  --transition: 0.25s ease;
+  color-scheme: light;
 }
 
+/* Night Mode – gesetzt per data-theme="dark" am <html>-Element */
+:root[data-theme="dark"] {
+  --text: #eee;
+  --muted: #aaa;
+  --bg: #1a1a1a;
+  --surface: #242424;
+  --line: #333;
+  --accent: #f0a060;
+  --accent-contrast: #1a1a1a;
+  --placeholder: #2e2e2e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.5), 0 12px 28px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+/* Fallback ohne JavaScript: Systemeinstellung übernehmen */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --text: #eee;
     --muted: #aaa;
     --bg: #1a1a1a;
+    --surface: #242424;
     --line: #333;
     --accent: #f0a060;
-    --placeholder: #2a2a2a;
+    --accent-contrast: #1a1a1a;
+    --placeholder: #2e2e2e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.35);
+    --shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.5), 0 12px 28px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
   }
 }
+
+/* ---------- 2. Grundlayout & Typografie ---------- */
 
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 1.0625rem;
+  font-size: 1rem;
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
+  transition: background-color var(--transition), color var(--transition);
 }
 
 main,
-footer {
-  max-width: 720px;
+footer,
+.header-inner,
+.tabs {
+  max-width: 960px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
 main {
-  padding-top: 2.5rem;
+  padding-top: 1.5rem;
 }
 
-/* Typografie */
-h1 {
-  font-size: 2.25rem;
-  margin: 0 auto 1.5rem;
-  border-bottom: 3px solid var(--accent);
-  display: table;
+h1,
+h2,
+h3 {
+  line-height: 1.25;
 }
 
 h2 {
-  font-size: 1.4rem;
-  margin: 2.5rem 0 1rem;
+  font-size: 1.3rem;
+  margin: 2rem 0 1rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem;
 }
 
 p {
   margin: 0 0 1rem;
 }
 
-/* Portrait */
+a {
+  color: var(--accent);
+}
+
 figure {
   margin: 0;
-}
-
-.portrait {
-  max-width: 360px;
-  margin: 0 auto 1.5rem;
-  text-align: center;
-}
-
-.portrait img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
 }
 
 figcaption {
@@ -86,9 +129,221 @@ figcaption {
   margin-top: 0.4rem;
 }
 
-/* Tabelle */
+.lead {
+  color: var(--muted);
+}
+
+/* Sichtbarer Tastatur-Fokus für alle interaktiven Elemente */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------- 3. Header, Theme-Schalter, Tabs ---------- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+  transition: background-color var(--transition), border-color var(--transition);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.9rem;
+  padding-bottom: 0.4rem;
+}
+
+.site-title {
+  font-size: 1.6rem;
+  margin: 0;
+  border-bottom: 3px solid var(--accent);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition), color var(--transition),
+              border-color var(--transition), transform var(--transition);
+}
+
+.theme-toggle:hover {
+  transform: rotate(-15deg) scale(1.06);
+  color: var(--accent);
+}
+
+.icon {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Nur das passende Symbol zeigen: Mond im Light Mode, Sonne im Night Mode */
+.icon-sun {
+  display: none;
+}
+
+:root[data-theme="dark"] .icon-sun {
+  display: block;
+}
+
+:root[data-theme="dark"] .icon-moon {
+  display: none;
+}
+
+/* Tab-Leiste */
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+}
+
+.tab {
+  position: relative;
+  flex: 1 1 0;
+  padding: 0.7rem 1rem;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: color var(--transition), background-color var(--transition);
+}
+
+/* Animierte Unterstreichung des aktiven Tabs */
+.tab::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--accent);
+  transform: scaleX(0);
+  transition: transform var(--transition);
+}
+
+.tab:hover {
+  color: var(--text);
+  background: var(--placeholder);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--text);
+}
+
+.tab[aria-selected="true"]::after {
+  transform: scaleX(1);
+}
+
+/* Tab-Panels: sanftes Einblenden (Fade + Slide) beim Wechsel.
+   Die Animation startet automatisch neu, sobald "hidden" entfernt wird. */
+.tab-panel {
+  animation: tab-in 0.35s ease both;
+}
+
+.tab-panel[hidden] {
+  display: none;
+}
+
+.tab-panel:focus-visible {
+  outline-offset: 8px;
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- 4. Karten ---------- */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  transition: transform var(--transition), box-shadow var(--transition),
+              background-color var(--transition), border-color var(--transition);
+}
+
+/* Hover-Effekt nur bei "echten" Karten-Elementen (Galerie, News, Projekte) */
+.gallery .card:hover,
+.news-card:hover,
+.project-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+/* ---------- 5. About ---------- */
+
+.about-intro {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.about-intro h2 {
+  margin-top: 0;
+}
+
+.about-text p:last-child {
+  margin-bottom: 0;
+}
+
+.portrait {
+  max-width: 360px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* Lebenslauf-Tabelle – mobil als Liste dargestellt */
 .table-wrap {
   overflow-x: auto;
+  padding: 0.5rem 1rem;
 }
 
 table {
@@ -97,27 +352,59 @@ table {
   font-size: 0.95rem;
 }
 
-th,
+thead {
+  display: none;
+}
+
+table,
+tbody,
+tr,
 td {
-  text-align: left;
-  vertical-align: top;
-  padding: 0.6rem 0.5rem;
+  display: block;
+  width: 100%;
+}
+
+tr {
+  padding: 0.6rem 0;
   border-bottom: 1px solid var(--line);
 }
 
-th {
-  border-bottom: 2px solid var(--accent);
+tr:last-child {
+  border-bottom: none;
+}
+
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.1rem 0;
 }
 
 td:first-child {
   white-space: nowrap;
+  font-weight: 600;
+  color: var(--accent);
 }
 
-/* Galerie 1x3 */
+td:nth-child(3),
+td:nth-child(4) {
+  display: inline;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+td:nth-child(3)::after {
+  content: " · ";
+}
+
+/* Galerie */
 .gallery {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.gallery .card {
+  padding: 0.6rem;
 }
 
 .placeholder {
@@ -127,7 +414,7 @@ td:first-child {
   justify-content: center;
   background: var(--placeholder);
   color: var(--muted);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
 .gallery img {
@@ -135,66 +422,235 @@ td:first-child {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
 }
 
+/* ---------- 6. News & Projects ---------- */
+
+.news-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.news-card {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.news-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: var(--placeholder);
+}
+
+.news-body {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.news-date {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.news-body p {
+  margin: 0;
+}
+
+/* Lade-, Leer- und Fehlermeldungen */
+.status {
+  color: var(--muted);
+}
+
+.status-error {
+  border-left: 4px solid #c0392b;
+}
+
+.status-error code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  background: var(--placeholder);
+  font-size: 0.9em;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-card p {
+  color: var(--muted);
+  flex-grow: 1;
+}
+
+.card-link {
+  align-self: flex-start;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.card-link span {
+  display: inline-block;
+  transition: transform var(--transition);
+}
+
+.card-link:hover span {
+  transform: translateX(4px);
+}
+
+/* ---------- 7. Kontakt-Links (fixiert unten rechts) ---------- */
+
+.contact-links {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.contact-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  transition: transform var(--transition), background-color var(--transition),
+              color var(--transition), box-shadow var(--transition);
+}
+
+.contact-links a:hover {
+  transform: translateY(-3px);
+  background: var(--accent);
+  color: var(--accent-contrast);
+  box-shadow: var(--shadow-hover);
+}
+
+.contact-links svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+/* Platz schaffen, damit die fixierten Icons den Footer nicht verdecken */
 footer {
   margin-top: 3rem;
   padding-bottom: 2rem;
+  padding-right: 4.5rem;
   font-size: 0.875rem;
   color: var(--muted);
 }
 
-/* Mobil */
-@media (max-width: 600px) {
-  h1 {
-    font-size: 1.8rem;
+/* ---------- 8. Breakpoints ---------- */
+
+/* Tablet */
+@media (min-width: 600px) {
+  body {
+    font-size: 1.0625rem;
   }
 
   main {
-    padding-top: 1.5rem;
+    padding-top: 2.5rem;
+  }
+
+  .site-title {
+    font-size: 2rem;
+  }
+
+  .tab {
+    flex: 0 0 auto;
+  }
+
+  .gallery,
+  .card-grid,
+  .news-list {
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .gallery {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  /* Tabelle als Karten darstellen */
+  /* Lebenslauf wieder als echte Tabelle */
+  table {
+    display: table;
+  }
+
   thead {
-    display: none;
+    display: table-header-group;
   }
 
-  table,
-  tbody,
-  tr,
-  td {
-    display: block;
-    width: 100%;
+  tbody {
+    display: table-row-group;
   }
 
   tr {
-    padding: 0.6rem 0;
-    border-bottom: 1px solid var(--line);
+    display: table-row;
+    padding: 0;
   }
 
-  td {
-    border: none;
-    padding: 0.1rem 0;
+  th,
+  td,
+  td:nth-child(3),
+  td:nth-child(4) {
+    display: table-cell;
+    width: auto;
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid var(--line);
+    font-size: inherit;
+    color: inherit;
   }
 
   td:first-child {
-    font-weight: 600;
-    color: var(--accent);
-  }
-
-  td:nth-child(3),
-  td:nth-child(4) {
-    display: inline;
-    font-size: 0.875rem;
-    color: var(--muted);
+    font-weight: normal;
+    color: inherit;
   }
 
   td:nth-child(3)::after {
-    content: " · ";
+    content: none;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  th {
+    text-align: left;
+    border-bottom: 2px solid var(--accent);
+  }
+}
+
+/* Desktop */
+@media (min-width: 900px) {
+  .about-intro {
+    grid-template-columns: 320px 1fr;
+  }
+
+  .card-grid,
+  .news-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ---------- 9. Reduzierte Bewegung respektieren ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

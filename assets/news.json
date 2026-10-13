@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Neue persönliche Webseite",
+    "date": "2026-09-15",
+    "text": "Meine Webseite hat ein neues Gewand bekommen: Tabs, Light/Night Mode und News, die automatisch aus einer JSON-Datei geladen werden.",
+    "image": "assets/news-1.svg"
+  },
+  {
+    "title": "Start ins 5. Semester",
+    "date": "2026-10-01",
+    "text": "Das Wintersemester an der Hochschule Mainz hat begonnen – mit Schwerpunkten in Geoinformatik, Web-Mapping und Ausgleichungsrechnung.",
+    "image": "assets/news-2.svg"
+  },
+  {
+    "title": "Erste Web-Map online",
+    "date": "2026-10-10",
+    "text": "Platzhalter: Eine interaktive Karte aus einem Studienprojekt ist jetzt im Tab „Projects“ verlinkt.",
+    "image": "assets/news-3.svg"
+  }
+]

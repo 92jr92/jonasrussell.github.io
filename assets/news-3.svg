@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360" role="img" aria-label="Platzhalterbild: Web-Map">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f7d3a"/>
+      <stop offset="1" stop-color="#24401a"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <g fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="2">
+    <path d="M0 260 C120 220 200 300 320 250 S520 180 640 230"/>
+    <path d="M0 300 C140 260 220 330 340 290 S540 220 640 270"/>
+    <path d="M0 220 C100 180 220 260 320 210 S500 140 640 190"/>
+  </g>
+  <g fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M230 105l60-20 60 20 60-20v130l-60 20-60-20-60 20z"/><path d="M290 85v130M350 105v130"/></g><circle cx="380" cy="140" r="12" fill="#fff"/>
+  <text x="320" y="320" text-anchor="middle" font-family="system-ui, sans-serif" font-size="22" fill="#ffffff" fill-opacity="0.85">Web-Map</text>
+</svg>
