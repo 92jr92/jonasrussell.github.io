@@ -3,7 +3,7 @@
    1. Light/Night Mode   (initTheme)
    2. Barrierefreie Tabs (initTabs)
    3. News aus JSON      (loadNews, renderNews, createNewsCard)
-   4. Termine aus JSON   (loadTermine, renderTermine, createTerminCard)
+   4. Termine-Woche     (loadTermine, renderWeek, buildWeekGrid, assignLanes)
    5. Gemeinsame Helfer  (fetchJsonArray, showLoadError)
    ========================================================= */
 
@@ -217,7 +217,7 @@ function sortValue(value) {
   return Number.isNaN(time) ? 0 : time;
 }
 
-/* ---------- 4. Termine ---------- */
+/* ---------- 4. Termine: Wochenansicht (Stundenplan) ---------- */
 
 /*
  * assets/termine.json wird von der GitHub Action (scripts/ics_to_json.py)
@@ -225,10 +225,21 @@ function sortValue(value) {
  *   { title, start, end, allDay, location }  – start/end als ISO 8601 mit Offset,
  *   bei ganztägigen Terminen ist "end" exklusiv (00:00 des Folgetags).
  *
- * Alle Datums- und Zeitangaben werden in Europe/Berlin dargestellt –
- * unabhängig von der Zeitzone des Besuchers.
+ * Darstellung: CSS-Grid mit einer Spalte je Wochentag und 45 Zeilen à
+ * 15 Minuten (08:15–19:30). Termine werden pro Tag absolut positioniert:
+ * --start/--span (in 15-Minuten-Zeilen) ergeben top/height, --lane/--lanes
+ * die Breite bei Überschneidungen (siehe .week-event im CSS).
+ *
+ * Alle Datums- und Zeitangaben gelten in Europe/Berlin – unabhängig von
+ * der Zeitzone des Besuchers.
  */
 const TIME_ZONE = "Europe/Berlin";
+const GRID_START_MIN = 8 * 60 + 15;  // 08:15 Uhr
+const GRID_END_MIN = 19 * 60 + 30;   // 19:30 Uhr
+const SLOT_MIN = 15;                 // Minuten pro Rasterzeile
+const SLOT_COUNT = (GRID_END_MIN - GRID_START_MIN) / SLOT_MIN; // 45 Zeilen
+const SUBJECT_COLOR_COUNT = 8;       // Anzahl Farben --subject-0 … --subject-7 im CSS
+const WARNING_PATTERN = /⚠|⏳/u;     // solche Titel bekommen die Warnfarbe
 
 // Formatter einmal anlegen statt bei jedem Termin neu
 const dayPartsFormat = new Intl.DateTimeFormat("de-DE", {
@@ -237,28 +248,79 @@ const dayPartsFormat = new Intl.DateTimeFormat("de-DE", {
 const timeFormat = new Intl.DateTimeFormat("de-DE", {
   timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit",
 });
+const minutePartsFormat = new Intl.DateTimeFormat("de-DE", {
+  timeZone: TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+});
 
-/** Lädt die Termine und rendert sie gruppiert nach Tag. */
+/* Zustand der Wochenansicht */
+const week = {
+  termine: [],   // aufbereitete Termine (siehe prepareTermine)
+  weekStart: "", // Montag der angezeigten Woche, "JJJJ-MM-TT"
+  todayKey: "",  // heutiger Tag, "JJJJ-MM-TT"
+  minKey: "",    // erster Tag mit Daten
+  maxKey: "",    // letzter Tag mit Daten
+  timer: null,   // Intervall für die Jetzt-Linie
+  els: null,     // DOM-Referenzen
+};
+
+/** Lädt die Termine und startet die Wochenansicht. */
 async function loadTermine() {
-  const container = document.getElementById("termine-list");
+  const container = document.getElementById("termine-week");
   if (!container) return;
 
   try {
-    renderTermine(container, await fetchJsonArray(TERMINE_URL), new Date());
+    initWeekView(container, await fetchJsonArray(TERMINE_URL));
   } catch (error) {
     console.warn("Termine konnten nicht geladen werden:", error);
     showLoadError(container, "Die Termine konnten leider nicht geladen werden.");
   }
 }
 
-/**
- * Bereitet die Rohdaten auf: ungültige Einträge und Termine, die vor heute
- * endeten, fallen weg. Jeder Termin bekommt den Tag (dayKey), unter dem er
- * angezeigt wird – mehrtägige Termine, die schon laufen, erscheinen unter "Heute".
- */
-function prepareTermine(items, now) {
-  const todayKey = dayKey(now);
+/** Richtet Zustand und Navigation ein und zeigt die aktuelle Woche. */
+function initWeekView(container, items) {
+  week.els = {
+    container,
+    nav: document.getElementById("week-nav"),
+    prev: document.getElementById("week-prev"),
+    today: document.getElementById("week-today"),
+    next: document.getElementById("week-next"),
+    label: document.getElementById("week-label"),
+  };
 
+  week.termine = prepareTermine(items);
+  week.todayKey = dayKey(new Date());
+  week.weekStart = weekStartOf(week.todayKey);
+  if (week.termine.length > 0) {
+    week.minKey = week.termine.reduce((min, t) => (t.startKey < min ? t.startKey : min), week.termine[0].startKey);
+    week.maxKey = week.termine.reduce((max, t) => (t.lastDayKey > max ? t.lastDayKey : max), week.termine[0].lastDayKey);
+  }
+
+  const { prev, today, next, nav } = week.els;
+  prev.addEventListener("click", () => goToWeek(addDays(week.weekStart, -7), prev));
+  next.addEventListener("click", () => goToWeek(addDays(week.weekStart, 7), next));
+  today.addEventListener("click", () => goToWeek(weekStartOf(week.todayKey), today));
+  nav.hidden = false;
+
+  renderWeek();
+  // Jetzt-Linie und "vergangen"-Markierung jede Minute aktualisieren
+  week.timer = setInterval(updateNowLine, 60 * 1000);
+}
+
+/**
+ * Wechselt die Woche. Wird der geklickte Button dabei deaktiviert,
+ * springt der Fokus auf "Heute", damit Tastaturnutzer nicht "ins Leere" fallen.
+ */
+function goToWeek(weekStart, button) {
+  week.weekStart = weekStart;
+  renderWeek();
+  if (button.disabled) week.els.today.focus();
+}
+
+/**
+ * Bereitet die Rohdaten auf: ungültige Einträge fallen weg; jeder Termin
+ * bekommt Tagesschlüssel, Kurzraum, Fachfarbe und Warn-Kennzeichen.
+ */
+function prepareTermine(items) {
   return items
     .map((item) => {
       if (!item || typeof item.title !== "string") return null;
@@ -267,161 +329,362 @@ function prepareTermine(items, now) {
       if (Number.isNaN(start.getTime())) return null;
       if (Number.isNaN(end.getTime()) || end < start) end = start;
 
-      // Letzter belegter Tag: Ende ist exklusiv, daher 1 ms abziehen
-      const lastDayKey = dayKey(end > start ? new Date(end.getTime() - 1) : end);
-      if (lastDayKey < todayKey) return null;
-
-      const startKey = dayKey(start);
+      const location = typeof item.location === "string" ? item.location.trim() : "";
       return {
-        title: item.title,
+        title: item.title.trim() || "(ohne Titel)",
         start,
         end,
-        lastDayKey,
         allDay: item.allDay === true,
-        location: typeof item.location === "string" ? item.location.trim() : "",
-        dayKey: startKey < todayKey ? todayKey : startKey,
+        location,
+        // Raum = Teil vor dem ersten Komma ("d1.07, Lucy-Hillebrand-Straße 2, Mainz" -> "d1.07")
+        room: location.split(",")[0].trim(),
+        startKey: dayKey(start),
+        // Letzter belegter Tag: Ende ist exklusiv, daher 1 ms abziehen
+        lastDayKey: dayKey(end > start ? new Date(end.getTime() - 1) : end),
+        subject: subjectColorIndex(item.title),
+        warning: WARNING_PATTERN.test(item.title),
       };
     })
     .filter(Boolean)
     .sort((a, b) => a.start - b.start || a.title.localeCompare(b.title, "de"));
 }
 
-/** Rendert die Termine als Tagesgruppen mit Karten. */
-function renderTermine(container, items, now) {
-  const termine = prepareTermine(items, now);
+/**
+ * Farbe pro Fach: Das erste Wort des Titels (z. B. "Verm5", "GDI", "Photo"),
+ * Emojis davor werden übersprungen, wird zu einem festen Index 0–7 gehasht.
+ * Gleiches Fach -> immer gleiche Farbe.
+ */
+function subjectColorIndex(title) {
+  const match = /[\p{L}\p{N}][\p{L}\p{N}_-]*/u.exec(title);
+  const word = match ? match[0].toLowerCase() : "";
+  let hash = 0;
+  for (const char of word) hash = (hash * 31 + char.codePointAt(0)) >>> 0;
+  return hash % SUBJECT_COLOR_COUNT;
+}
+
+/* --- Rendern --- */
+
+/** Zeichnet die aktuell gewählte Woche neu (Navigation + Raster). */
+function renderWeek() {
+  const { container } = week.els;
+  const weekKeys = Array.from({ length: 7 }, (_, i) => addDays(week.weekStart, i));
+  const weekEnd = weekKeys[6];
+  const weekTermine = week.termine.filter((t) => t.lastDayKey >= week.weekStart && t.startKey <= weekEnd);
+
+  // Montag–Freitag immer, Samstag/Sonntag nur mit Termin
+  const days = weekKeys.filter((key, i) =>
+    i < 5 || weekTermine.some((t) => t.startKey <= key && t.lastDayKey >= key));
+
+  updateNav(days);
   container.replaceChildren();
 
-  if (termine.length === 0) {
-    const empty = document.createElement("p");
-    empty.className = "status";
-    empty.textContent = "Keine anstehenden Termine.";
-    container.append(empty);
+  if (week.termine.length === 0) {
+    container.append(statusText("Keine anstehenden Termine."));
+    return;
+  }
+  if (weekTermine.length === 0) {
+    container.append(statusText("Keine Termine in dieser Woche."));
+  }
+
+  container.append(buildWeekGrid(days, weekTermine));
+  updateNowLine();
+}
+
+/** Buttons (de)aktivieren und "KW 42 · 12.–16. Oktober 2026" anzeigen. */
+function updateNav(days) {
+  const { prev, next, label } = week.els;
+  const hasData = week.termine.length > 0;
+  // Zurück nur, wenn die Vorwoche noch Daten enthält; Vor nur, wenn die Folgewoche welche hat
+  prev.disabled = !hasData || addDays(week.weekStart, -1) < week.minKey;
+  next.disabled = !hasData || addDays(week.weekStart, 7) > week.maxKey;
+  label.textContent = `KW ${isoWeek(week.weekStart)} · ${formatDateRange(days[0], days[days.length - 1])}`;
+}
+
+/** Baut das komplette Raster einer Woche. */
+function buildWeekGrid(days, weekTermine) {
+  // Scrollbereich ist per Tastatur fokussierbar (Pfeiltasten scrollen horizontal)
+  const scroll = document.createElement("div");
+  scroll.className = "card week-scroll";
+  scroll.tabIndex = 0;
+  scroll.setAttribute("role", "region");
+  scroll.setAttribute("aria-label", `Stundenplan ${week.els.label.textContent}`);
+
+  const grid = document.createElement("div");
+  grid.className = "week-grid";
+  grid.style.setProperty("--days", days.length);
+  grid.style.setProperty("--slots", SLOT_COUNT);
+
+  // Ecke oben links (über der Zeitachse), bleibt beim Scrollen stehen
+  const corner = document.createElement("div");
+  corner.className = "week-corner";
+  grid.append(corner);
+
+  let hasAllDayRow = false;
+
+  days.forEach((key, index) => {
+    const column = index + 2; // Spalte 1 = Zeitachse
+    const isToday = key === week.todayKey;
+
+    // Kopfzeile: "Di 14.10."
+    const head = document.createElement("div");
+    head.className = "week-day-head";
+    head.style.gridColumn = column;
+    head.textContent = formatColumnHead(key);
+    if (isToday) {
+      head.classList.add("is-today");
+      head.setAttribute("aria-current", "date");
+    }
+
+    // Termine dieses Tages in Leiste (ganztägig / außerhalb 08:15–19:30) und Raster aufteilen
+    const barItems = [];
+    const segments = [];
+    weekTermine
+      .filter((t) => t.startKey <= key && t.lastDayKey >= key)
+      .forEach((termin) => {
+        if (termin.allDay) {
+          barItems.push({ termin, key, prefix: "" });
+          return;
+        }
+        const seg = daySegment(termin, key);
+        if (seg.endMin <= GRID_START_MIN || seg.startMin >= GRID_END_MIN) {
+          // Liegt an diesem Tag komplett außerhalb des Rasters -> nicht verlieren,
+          // sondern mit Uhrzeit in der Leiste oben anzeigen
+          const prefix = key === termin.startKey
+            ? `${formatMinutes(seg.startMin)} `
+            : `bis ${formatMinutes(seg.endMin)} `;
+          barItems.push({ termin, key, prefix });
+          return;
+        }
+        segments.push(seg);
+      });
+
+    // Leiste für ganztägige Termine unter der Kopfzeile
+    const bar = document.createElement("div");
+    bar.className = "week-allday";
+    bar.style.gridColumn = column;
+    barItems.forEach((item) => bar.append(createAllDayItem(item)));
+    if (barItems.length > 0) hasAllDayRow = true;
+
+    // Tagesspalte mit Rasterlinien und Terminblöcken
+    const body = document.createElement("div");
+    body.className = "week-day-body";
+    body.style.gridColumn = column;
+    if (isToday) body.classList.add("is-today");
+    assignLanes(segments);
+    segments.forEach((seg) => body.append(createEventBlock(seg, key)));
+
+    grid.append(head, bar, body);
+  });
+
+  if (!hasAllDayRow) grid.classList.add("no-allday");
+
+  // Zeitachse: 45 Beschriftungen, volle Stunden hervorgehoben
+  for (let slot = 0; slot < SLOT_COUNT; slot++) {
+    const minutes = GRID_START_MIN + slot * SLOT_MIN;
+    const label = document.createElement("div");
+    label.className = minutes % 60 === 0 ? "week-time is-hour" : "week-time";
+    label.style.gridRow = slot + 3; // Zeile 1 = Kopf, Zeile 2 = Ganztagsleiste
+    label.textContent = formatMinutes(minutes);
+    label.setAttribute("aria-hidden", "true");
+    grid.append(label);
+  }
+
+  scroll.append(grid);
+  return scroll;
+}
+
+/**
+ * Anteil eines (evtl. mehrtägigen) Termins an einem Tag, in Minuten ab 00:00.
+ * Am Starttag beginnt er zur Startzeit, an Folgetagen um 00:00;
+ * am Endtag endet er zur Endzeit, sonst um 24:00.
+ */
+function daySegment(termin, key) {
+  const startMin = key === termin.startKey ? minutesOfDay(termin.start) : 0;
+  const endMin = key === dayKey(termin.end) ? minutesOfDay(termin.end) : 24 * 60;
+  return { termin, startMin, endMin };
+}
+
+/**
+ * Kürzt Segmente auf 08:15–19:30 und verteilt überlappende Termine auf
+ * nebeneinanderliegende Spuren ("lanes"). Alle Termine einer Gruppe von
+ * sich (auch indirekt) überschneidenden Terminen teilen sich die Breite.
+ */
+function assignLanes(segments) {
+  segments.forEach((seg) => {
+    seg.top = Math.max(seg.startMin, GRID_START_MIN);
+    // Mindesthöhe eine Zeile, damit auch sehr kurze Termine (z. B. Fristen) sichtbar sind
+    seg.bottom = Math.min(Math.max(seg.endMin, seg.top + SLOT_MIN), GRID_END_MIN);
+    seg.clippedTop = seg.startMin < GRID_START_MIN;
+    seg.clippedBottom = seg.endMin > GRID_END_MIN;
+  });
+  segments.sort((a, b) => a.top - b.top || b.bottom - a.bottom);
+
+  let group = [];
+  let groupEnd = -1;
+  let laneEnds = []; // Endzeit des letzten Termins je Spur
+
+  const closeGroup = () => {
+    const lanes = laneEnds.length;
+    group.forEach((seg) => { seg.lanes = lanes; });
+    group = [];
+    laneEnds = [];
+  };
+
+  segments.forEach((seg) => {
+    if (group.length > 0 && seg.top >= groupEnd) closeGroup();
+    let lane = laneEnds.findIndex((end) => end <= seg.top);
+    if (lane === -1) lane = laneEnds.length;
+    laneEnds[lane] = seg.bottom;
+    seg.lane = lane;
+    group.push(seg);
+    groupEnd = Math.max(groupEnd, seg.bottom);
+  });
+  if (group.length > 0) closeGroup();
+}
+
+/** Terminblock im Raster: Titel + Raum, Details im Tooltip und aria-label. */
+function createEventBlock(seg, key) {
+  const { termin } = seg;
+  const block = document.createElement("article");
+  block.className = `week-event subject-${termin.subject}`;
+  if (termin.warning) block.classList.add("is-warning");
+  if (seg.clippedTop) block.classList.add("clipped-top");
+  if (seg.clippedBottom) block.classList.add("clipped-bottom");
+
+  // Position/Größe in 15-Minuten-Zeilen, Breite über Spuren (siehe CSS)
+  block.style.setProperty("--start", (seg.top - GRID_START_MIN) / SLOT_MIN);
+  block.style.setProperty("--span", (seg.bottom - seg.top) / SLOT_MIN);
+  block.style.setProperty("--lane", seg.lane);
+  block.style.setProperty("--lanes", seg.lanes);
+  block.dataset.end = String(termin.end.getTime());
+
+  block.title = tooltipText(termin);
+  block.setAttribute("aria-label", ariaText(termin, key));
+
+  const title = document.createElement("h4");
+  title.textContent = termin.title;
+  block.append(title);
+
+  if (termin.room) {
+    const room = document.createElement("p");
+    room.textContent = termin.room;
+    block.append(room);
+  }
+  return block;
+}
+
+/** Eintrag in der Ganztagsleiste (auch für Termine außerhalb 08:15–19:30). */
+function createAllDayItem({ termin, key, prefix }) {
+  const item = document.createElement("article");
+  item.className = `week-allday-item subject-${termin.subject}`;
+  if (termin.warning) item.classList.add("is-warning");
+  item.dataset.end = String(termin.end.getTime());
+  item.title = tooltipText(termin);
+  item.setAttribute("aria-label", ariaText(termin, key));
+  item.textContent = prefix + termin.title;
+  return item;
+}
+
+/** Tooltip: Titel, Uhrzeit von–bis, kompletter Ort – je eine Zeile. */
+function tooltipText(termin) {
+  const lines = [termin.title, `${formatDayHeading(termin.startKey, week.todayKey)}, ${formatTimeRange(termin)}`];
+  if (termin.location) lines.push(termin.location);
+  return lines.join("\n");
+}
+
+/** Screenreader-Text: Titel, Datum, Uhrzeit, Raum. */
+function ariaText(termin, key) {
+  const parts = [termin.title, formatDayHeading(key, week.todayKey), formatTimeRange(termin)];
+  if (termin.room) parts.push(`Raum ${termin.room}`);
+  return parts.join(", ");
+}
+
+/**
+ * Setzt die Linie für die aktuelle Uhrzeit in die heutige Spalte und
+ * markiert vergangene Termine. Läuft beim Rendern und dann jede Minute.
+ * Nach Mitternacht wird die Ansicht auf den neuen Tag umgestellt.
+ */
+function updateNowLine() {
+  const now = new Date();
+  const todayKey = dayKey(now);
+
+  if (todayKey !== week.todayKey) {
+    const wasCurrentWeek = week.weekStart === weekStartOf(week.todayKey);
+    week.todayKey = todayKey;
+    if (wasCurrentWeek) week.weekStart = weekStartOf(todayKey);
+    renderWeek(); // ruft updateNowLine erneut auf – dann mit aktuellem Tag
     return;
   }
 
-  // Nach Tag gruppieren (Reihenfolge bleibt durch die Sortierung erhalten)
-  const groups = new Map();
-  termine.forEach((termin) => {
-    if (!groups.has(termin.dayKey)) groups.set(termin.dayKey, []);
-    groups.get(termin.dayKey).push(termin);
-  });
+  const { container } = week.els;
+  container.querySelectorAll(".week-now-line").forEach((line) => line.remove());
 
-  const todayKey = dayKey(now);
-  const tomorrowKey = addDays(todayKey, 1);
+  const minutes = minutesOfDay(now);
+  const body = container.querySelector(".week-day-body.is-today");
+  if (body && minutes >= GRID_START_MIN && minutes <= GRID_END_MIN) {
+    const line = document.createElement("div");
+    line.className = "week-now-line";
+    line.setAttribute("aria-hidden", "true");
+    line.style.setProperty("--start", (minutes - GRID_START_MIN) / SLOT_MIN);
+    body.append(line);
+  }
 
-  groups.forEach((dayTermine, key) => {
-    const section = document.createElement("section");
-    section.className = "termine-day";
-
-    const heading = document.createElement("h3");
-    heading.className = "termine-day-heading";
-    heading.textContent = formatDayHeading(key, todayKey);
-
-    // "Heute" / "Morgen" als hervorgehobenes Etikett vor dem Datum
-    const relative = key === todayKey ? "Heute" : key === tomorrowKey ? "Morgen" : "";
-    if (relative) {
-      const badge = document.createElement("span");
-      badge.className = key === todayKey ? "badge" : "badge badge-soft";
-      badge.textContent = relative;
-      heading.prepend(badge, " ");
-    }
-
-    const list = document.createElement("div");
-    list.className = "termine-day-list";
-    dayTermine.forEach((termin) => list.append(createTerminCard(termin, now)));
-
-    section.append(heading, list);
-    container.append(section);
+  // Bereits beendete Termine dezent abdunkeln
+  container.querySelectorAll("[data-end]").forEach((el) => {
+    el.classList.toggle("is-past", Number(el.dataset.end) <= now.getTime());
   });
 }
 
-/** Baut eine Karte mit Uhrzeit, Titel und (falls vorhanden) Raum. */
-function createTerminCard(termin, now) {
-  const card = document.createElement("article");
-  card.className = "card termin-card";
+/* --- Format-Helfer --- */
 
-  // Beendet = Ende erreicht; Termine ohne Dauer (z. B. Abgabefristen) ab ihrem Beginn
-  const hasDuration = termin.end > termin.start;
-  const isPast = hasDuration ? termin.end <= now : termin.start <= now;
-  const isRunning = !isPast && termin.start <= now;
-  if (isPast) card.classList.add("is-past");
-  if (isRunning) card.classList.add("is-now");
-
-  // Zeile 1: Uhrzeit (bzw. "Ganztägig") + Status
-  const time = document.createElement("p");
-  time.className = "termin-time";
-  const timeEl = document.createElement("time");
-  timeEl.dateTime = termin.start.toISOString();
-  timeEl.textContent = formatTimeRange(termin);
-  time.append(timeEl);
-
-  if (isRunning || isPast) {
-    const state = document.createElement("span");
-    state.className = isRunning ? "badge" : "badge badge-soft";
-    state.textContent = isRunning ? "Läuft gerade" : "Beendet";
-    time.append(" ", state);
-  }
-
-  // Zeile 2: Titel
-  const title = document.createElement("h4");
-  title.textContent = termin.title;
-  card.append(time, title);
-
-  // Zeile 3: Raum – entfällt, wenn kein Ort eingetragen ist
-  if (termin.location) {
-    const room = document.createElement("p");
-    room.className = "termin-room";
-
-    const label = document.createElement("span");
-    label.className = "visually-hidden";
-    label.textContent = "Raum: ";
-
-    const text = document.createElement("span");
-    text.textContent = termin.location;
-
-    room.append(createPinIcon(), label, text);
-    card.append(room);
-  }
-
-  return card;
-}
-
-/** "08:15–09:45 Uhr", "Ganztägig", über Mitternacht mit Enddatum. */
+/** "08:15–09:45 Uhr", "ganztägig", über Mitternacht mit Enddatum. */
 function formatTimeRange(termin) {
-  const startKey = dayKey(termin.start);
-
   if (termin.allDay) {
-    return termin.lastDayKey === startKey
-      ? "Ganztägig"
-      : `Ganztägig bis ${formatShortDate(termin.lastDayKey)}`;
+    return termin.lastDayKey === termin.startKey
+      ? "ganztägig"
+      : `ganztägig bis ${formatShortDate(termin.lastDayKey)}`;
   }
 
   const from = timeFormat.format(termin.start);
   const to = timeFormat.format(termin.end);
   if (termin.end.getTime() === termin.start.getTime()) return `${from} Uhr`;
-  if (dayKey(termin.end) !== startKey) {
+  if (dayKey(termin.end) !== termin.startKey) {
     return `${from} Uhr – ${formatShortDate(dayKey(termin.end))}, ${to} Uhr`;
   }
   return `${from}–${to} Uhr`;
 }
 
-/** Ort-Symbol (Stecknadel) als Inline-SVG, für Screenreader ausgeblendet. */
-function createPinIcon() {
-  const ns = "http://www.w3.org/2000/svg";
-  const svg = document.createElementNS(ns, "svg");
-  svg.setAttribute("viewBox", "0 0 24 24");
-  svg.setAttribute("aria-hidden", "true");
-  svg.setAttribute("focusable", "false");
+/** Spaltenkopf "Di 14.10." */
+function formatColumnHead(key) {
+  const date = keyToDate(key);
+  const weekday = date.toLocaleDateString("de-DE", { timeZone: "UTC", weekday: "short" }).replace(".", "");
+  return `${weekday} ${formatShortDate(key)}`;
+}
 
-  const path = document.createElementNS(ns, "path");
-  path.setAttribute("d", "M12 21s-7-6.1-7-11.5A7 7 0 0 1 19 9.5C19 14.9 12 21 12 21z");
-  const dot = document.createElementNS(ns, "circle");
-  dot.setAttribute("cx", "12");
-  dot.setAttribute("cy", "9.5");
-  dot.setAttribute("r", "2.5");
+/** "12.–16. Oktober 2026", über Monats-/Jahresgrenzen entsprechend länger. */
+function formatDateRange(fromKey, toKey) {
+  const monthName = (key) => keyToDate(key).toLocaleDateString("de-DE", { timeZone: "UTC", month: "long" });
+  const [y1, m1, d1] = fromKey.split("-").map(Number);
+  const [y2, m2, d2] = toKey.split("-").map(Number);
 
-  svg.append(path, dot);
-  return svg;
+  if (y1 === y2 && m1 === m2) return `${d1}.–${d2}. ${monthName(toKey)} ${y2}`;
+  if (y1 === y2) return `${d1}. ${monthName(fromKey)} – ${d2}. ${monthName(toKey)} ${y2}`;
+  return `${d1}. ${monthName(fromKey)} ${y1} – ${d2}. ${monthName(toKey)} ${y2}`;
+}
+
+/** Minuten seit Mitternacht -> "08:15" */
+function formatMinutes(minutes) {
+  const h = String(Math.floor(minutes / 60)).padStart(2, "0");
+  const m = String(minutes % 60).padStart(2, "0");
+  return `${h}:${m}`;
+}
+
+/** Kleiner Status-/Hinweistext (lädt, leer …) */
+function statusText(text) {
+  const p = document.createElement("p");
+  p.className = "status";
+  p.textContent = text;
+  return p;
 }
 
 /* --- Datums-Helfer: arbeiten mit Tagesschlüsseln "JJJJ-MM-TT" (Berliner Zeit) --- */
@@ -431,6 +694,13 @@ function dayKey(date) {
   const parts = {};
   dayPartsFormat.formatToParts(date).forEach((p) => { parts[p.type] = p.value; });
   return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+/** Minuten seit Mitternacht (Berliner Zeit) eines Zeitpunkts. */
+function minutesOfDay(date) {
+  const parts = {};
+  minutePartsFormat.formatToParts(date).forEach((p) => { parts[p.type] = p.value; });
+  return Number(parts.hour) * 60 + Number(parts.minute);
 }
 
 /** Tagesschlüssel + n Tage (in UTC gerechnet, damit Zeitumstellungen nicht stören). */
@@ -443,6 +713,19 @@ function addDays(key, n) {
 function keyToDate(key) {
   const [y, m, d] = key.split("-").map(Number);
   return new Date(Date.UTC(y, m - 1, d, 12));
+}
+
+/** Montag der Woche, in der der Tag liegt. */
+function weekStartOf(key) {
+  const weekday = (keyToDate(key).getUTCDay() + 6) % 7; // Mo = 0 … So = 6
+  return addDays(key, -weekday);
+}
+
+/** Kalenderwoche nach ISO 8601 (Woche mit dem ersten Donnerstag = KW 1). */
+function isoWeek(key) {
+  const thursday = keyToDate(addDays(weekStartOf(key), 3));
+  const yearStart = Date.UTC(thursday.getUTCFullYear(), 0, 1, 12);
+  return Math.floor((thursday - yearStart) / (7 * 24 * 3600 * 1000)) + 1;
 }
 
 /** "Dienstag, 14. Oktober" – mit Jahr, falls es nicht das aktuelle ist. */

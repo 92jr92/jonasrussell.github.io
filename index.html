@@ -183,8 +183,24 @@
          die Datei aktualisiert die GitHub Action .github/workflows/update-termine.yml) ===== -->
     <section class="tab-panel" role="tabpanel" id="panel-termine" aria-labelledby="tab-termine" tabindex="0" hidden>
       <h2>Termine</h2>
-      <p class="lead">Meine Studientermine der nächsten vier Wochen.</p>
-      <div class="termine-list" id="termine-list" aria-live="polite">
+      <p class="lead">Mein Stundenplan – Woche für Woche.</p>
+
+      <!-- Wochen-Navigation; wird per JS eingeblendet, sobald Daten geladen sind -->
+      <div class="week-nav" id="week-nav" hidden>
+        <div class="week-nav-buttons">
+          <button type="button" class="week-btn" id="week-prev" aria-label="Eine Woche zurück">
+            <span aria-hidden="true">‹</span> Woche zurück
+          </button>
+          <button type="button" class="week-btn" id="week-today" aria-label="Heute – zur aktuellen Woche">Heute</button>
+          <button type="button" class="week-btn" id="week-next" aria-label="Eine Woche vor">
+            Woche vor <span aria-hidden="true">›</span>
+          </button>
+        </div>
+        <!-- aria-live: Screenreader sagen die neue Woche nach dem Blättern an -->
+        <p class="week-label" id="week-label" aria-live="polite"></p>
+      </div>
+
+      <div class="week-view" id="termine-week">
         <p class="status">Termine werden geladen …</p>
       </div>
     </section>

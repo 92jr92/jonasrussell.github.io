@@ -7,7 +7,7 @@
    4. Karten (allgemein)
    5. About: Portrait, Lebenslauf, Galerie
    6. News & Projects
-   6b. Termine
+   6b. Termine: Wochenansicht
    7. Kontakt-Links (fixiert)
    8. Breakpoints (Mobile-first: min-width)
    9. Reduzierte Bewegung
@@ -506,119 +506,324 @@ td:nth-child(3)::after {
   transform: translateX(4px);
 }
 
-/* ---------- 6b. Termine ---------- */
+/* ---------- 6b. Termine: Wochenansicht (Stundenplan) ---------- */
 
-.termine-list {
-  display: grid;
-  gap: 1.75rem;
+/*
+ * Fach-Farbpalette: je Fach ein heller (Light) bzw. dunkler (Night)
+ * Hintergrund plus kräftige Akzentlinie. Der Text nutzt immer var(--text),
+ * damit der Kontrast in beiden Modi deutlich über WCAG AA liegt.
+ * (Die Wochenansicht braucht JavaScript – dann ist data-theme immer gesetzt.)
+ */
+:root {
+  --slot-h: 1.125rem;      /* Höhe einer 15-Minuten-Zeile */
+  --axis-w: 3.25rem;       /* Breite der Zeitachse */
+  --day-min-w: 7.5rem;     /* Mindestbreite einer Tagesspalte */
+  --grid-line: color-mix(in srgb, var(--line) 60%, transparent);
+  --grid-line-hour: var(--line);
+  --now-line: #d93025;
+
+  --subject-0-bg: #fde4d0; --subject-0-line: #d9772b; /* Orange  */
+  --subject-1-bg: #d6e8f5; --subject-1-line: #2f6f8f; /* Blau    */
+  --subject-2-bg: #dcefd3; --subject-2-line: #4f7d3a; /* Grün    */
+  --subject-3-bg: #ece0f5; --subject-3-line: #7a4fa0; /* Violett */
+  --subject-4-bg: #f8dbe3; --subject-4-line: #b0446a; /* Rosé    */
+  --subject-5-bg: #d3eeec; --subject-5-line: #2a8580; /* Petrol  */
+  --subject-6-bg: #f3ead0; --subject-6-line: #9a7a1c; /* Ocker   */
+  --subject-7-bg: #e2e5ea; --subject-7-line: #5a6577; /* Schiefer */
+  --warning-bg: #fff0c2;   --warning-line: #c0392b;
 }
 
-.termine-day-heading {
+:root[data-theme="dark"] {
+  --grid-line: color-mix(in srgb, var(--line) 70%, transparent);
+  --grid-line-hour: #444;
+  --now-line: #ff6b5e;
+
+  --subject-0-bg: #4a2f1c; --subject-0-line: #f0a060;
+  --subject-1-bg: #1d3746; --subject-1-line: #6fb3d6;
+  --subject-2-bg: #263a1e; --subject-2-line: #8cc46f;
+  --subject-3-bg: #35264a; --subject-3-line: #b48ee0;
+  --subject-4-bg: #45222f; --subject-4-line: #e588a8;
+  --subject-5-bg: #183b39; --subject-5-line: #5fc9c2;
+  --subject-6-bg: #3d3416; --subject-6-line: #d9b84f;
+  --subject-7-bg: #2c3139; --subject-7-line: #9aa6b8;
+  --warning-bg: #4d3a0e;   --warning-line: #ff8a7a;
+}
+
+/* Fach-Klassen setzen die Farben für Block bzw. Leisteneintrag */
+.subject-0 { --ev-bg: var(--subject-0-bg); --ev-line: var(--subject-0-line); }
+.subject-1 { --ev-bg: var(--subject-1-bg); --ev-line: var(--subject-1-line); }
+.subject-2 { --ev-bg: var(--subject-2-bg); --ev-line: var(--subject-2-line); }
+.subject-3 { --ev-bg: var(--subject-3-bg); --ev-line: var(--subject-3-line); }
+.subject-4 { --ev-bg: var(--subject-4-bg); --ev-line: var(--subject-4-line); }
+.subject-5 { --ev-bg: var(--subject-5-bg); --ev-line: var(--subject-5-line); }
+.subject-6 { --ev-bg: var(--subject-6-bg); --ev-line: var(--subject-6-line); }
+.subject-7 { --ev-bg: var(--subject-7-bg); --ev-line: var(--subject-7-line); }
+
+/* Titel mit ⚠️ oder ⏳: Warnfarbe statt Fachfarbe */
+.week-event.is-warning,
+.week-allday-item.is-warning {
+  --ev-bg: var(--warning-bg);
+  --ev-line: var(--warning-line);
+}
+
+/* --- Navigation --- */
+
+.week-nav {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.week-nav[hidden] {
+  display: none;
+}
+
+.week-nav-buttons {
+  display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  font-size: 1.05rem;
-  margin: 0 0 0.75rem;
 }
 
-.termine-day-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-/* Akzentstreifen links kennzeichnet Termin-Karten */
-.termin-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 1rem 1.25rem;
-  border-left: 4px solid var(--accent);
-}
-
-.termin-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-hover);
-}
-
-.termin-card h4 {
-  margin: 0;
-  font-size: 1.05rem;
-  line-height: 1.3;
-}
-
-.termin-time {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
+.week-btn {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: border-color var(--transition), color var(--transition),
+              background-color var(--transition), transform var(--transition);
 }
 
-.termin-room {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.9rem;
-  color: var(--muted);
+.week-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: translateY(-1px);
 }
 
-.termin-room svg {
-  flex-shrink: 0;
-  width: 1rem;
-  height: 1rem;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-
-/* Bereits beendete Termine von heute: abgedunkelt, ohne Hover-Effekt */
-.termin-card.is-past {
-  opacity: 0.55;
-  border-left-color: var(--line);
+.week-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
   box-shadow: none;
 }
 
-.termin-card.is-past:hover {
-  transform: none;
+.week-label {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.termin-card.is-past .termin-time {
+/* --- Raster --- */
+
+/* Horizontal scrollbar auf schmalen Bildschirmen; Zeitachse bleibt per sticky stehen */
+.week-scroll {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: var(--axis-w) repeat(var(--days, 5), minmax(var(--day-min-w), 1fr));
+  /* Zeile 1: Kopf, Zeile 2: Ganztagsleiste, dann 45 Zeilen à 15 Minuten */
+  grid-template-rows: auto auto repeat(var(--slots, 45), var(--slot-h));
+  min-width: min-content;
+}
+
+/* Ecke über der Zeitachse – deckt beim Scrollen die Tagesköpfe ab */
+.week-corner {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.week-day-head {
+  grid-row: 1;
+  padding: 0.55rem 0.4rem;
+  border-left: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Erste Tagesspalte (Kopf = Kind 2, Leiste = 3, Spalte = 4): keine doppelte
+   Linie neben der Zeitachse */
+.week-day-head:nth-child(2),
+.week-allday:nth-child(3),
+.week-day-body:nth-child(4) {
+  border-left: none;
+}
+
+/* Heutiger Tag: getönter Kopf mit Akzentlinie (Text bleibt in var(--text) gut lesbar) */
+.week-day-head.is-today {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+/* Ganztagsleiste unter der Kopfzeile */
+.week-allday {
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.25rem;
+  border-left: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  min-width: 0;
+}
+
+.week-grid.no-allday .week-allday {
+  display: none;
+}
+
+.week-allday-item {
+  padding: 0.1rem 0.4rem;
+  border-left: 3px solid var(--ev-line);
+  border-radius: 4px;
+  background: var(--ev-bg);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Zeitachse links, bleibt beim horizontalen Scrollen sichtbar */
+/* z-index über Terminblöcken und Jetzt-Linie, damit beim Scrollen nichts durchscheint */
+.week-time {
+  grid-column: 1;
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  padding: 1px 0.4rem 0 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
   color: var(--muted);
+  font-size: 0.65rem;
+  line-height: 1;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Laufender Termin: leicht hervorgehobener Hintergrund */
-.termin-card.is-now {
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
-}
-
-/* Kleine Etiketten ("Heute", "Morgen", "Läuft gerade", "Beendet") */
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-contrast);
+.week-time.is-hour {
+  color: var(--text);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  line-height: 1.5;
 }
 
-.badge-soft {
-  background: var(--placeholder);
+/*
+ * Tagesspalte über alle 45 Zeilen. Rasterlinien als Hintergrund:
+ * dünn alle 15 Minuten, kräftiger zur vollen Stunde (erste volle Stunde
+ * 09:00 liegt 3 Zeilen unter 08:15, daher der Versatz).
+ */
+.week-day-body {
+  grid-row: 3 / span var(--slots, 45);
+  position: relative;
+  border-left: 1px solid var(--line);
+  background-image:
+    repeating-linear-gradient(to bottom,
+      var(--grid-line-hour) 0 1px, transparent 1px calc(var(--slot-h) * 4)),
+    repeating-linear-gradient(to bottom,
+      var(--grid-line) 0 1px, transparent 1px var(--slot-h));
+  background-position: 0 calc(var(--slot-h) * 3), 0 0;
+}
+
+.week-day-body.is-today {
+  background-color: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+/* Terminblock: Position aus --start/--span (Zeilen), Breite aus --lane/--lanes */
+.week-event {
+  position: absolute;
+  top: calc(var(--start) * var(--slot-h) + 1px);
+  height: calc(var(--span) * var(--slot-h) - 2px);
+  left: calc(var(--lane) * 100% / var(--lanes) + 2px);
+  width: calc(100% / var(--lanes) - 4px);
+  z-index: 1;
+  padding: 0.15rem 0.35rem;
+  overflow: hidden;
+  border-left: 3px solid var(--ev-line);
+  border-radius: 6px;
+  background: var(--ev-bg);
   color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  font-size: 0.75rem;
+  line-height: 1.25;
+  transition: box-shadow var(--transition), opacity var(--transition);
 }
 
-/* Nur für Screenreader sichtbar (z. B. "Raum: " vor der Raumnummer) */
+.week-event:hover {
+  z-index: 2;
+  box-shadow: var(--shadow-hover);
+}
+
+.week-event h4 {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.week-event p {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+/* Gekürzte Termine (ragen über 08:15 bzw. 19:30 hinaus): gestrichelte Kante */
+.week-event.clipped-top {
+  border-top: 2px dashed var(--ev-line);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.week-event.clipped-bottom {
+  border-bottom: 2px dashed var(--ev-line);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Bereits beendete Termine leicht abgedunkelt */
+.week-event.is-past,
+.week-allday-item.is-past {
+  opacity: 0.6;
+}
+
+/* Linie für die aktuelle Uhrzeit in der heutigen Spalte */
+.week-now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--start) * var(--slot-h));
+  z-index: 3;
+  border-top: 2px solid var(--now-line);
+  pointer-events: none;
+}
+
+.week-now-line::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--now-line);
+}
+
+/* Nur für Screenreader sichtbar */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -703,8 +908,7 @@ footer {
 
   .gallery,
   .card-grid,
-  .news-list,
-  .termine-day-list {
+  .news-list {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -768,8 +972,7 @@ footer {
   }
 
   .card-grid,
-  .news-list,
-  .termine-day-list {
+  .news-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }

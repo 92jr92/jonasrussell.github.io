@@ -1,24 +1,59 @@
 [
   {
-    "title": "Geodätische Ausgleichungsrechnung (Vorlesung)",
+    "title": "Verm5 Vorlesung",
     "start": "2026-10-13T08:15:00+02:00",
     "end": "2026-10-13T09:45:00+02:00",
     "allDay": false,
-    "location": "D 1.12"
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
   },
   {
-    "title": "Web-Mapping (Übung)",
-    "start": "2026-10-13T14:00:00+02:00",
-    "end": "2026-10-13T15:30:00+02:00",
+    "title": "GDI Übung",
+    "start": "2026-10-13T10:00:00+02:00",
+    "end": "2026-10-13T11:30:00+02:00",
     "allDay": false,
-    "location": "C 2.05"
+    "location": "d2.21, Lucy-Hillebrand-Straße 2, Mainz"
   },
   {
-    "title": "Geodatenbanken (Vorlesung)",
-    "start": "2026-10-14T10:00:00+02:00",
-    "end": "2026-10-14T11:30:00+02:00",
+    "title": "Photo Seminar",
+    "start": "2026-10-13T10:45:00+02:00",
+    "end": "2026-10-13T12:15:00+02:00",
     "allDay": false,
-    "location": "D 2.21"
+    "location": "a0.07, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Verm5 Tutorium",
+    "start": "2026-10-14T07:30:00+02:00",
+    "end": "2026-10-14T09:00:00+02:00",
+    "allDay": false,
+    "location": "d1.12"
+  },
+  {
+    "title": "GDI Projektarbeit",
+    "start": "2026-10-14T14:00:00+02:00",
+    "end": "2026-10-14T17:15:00+02:00",
+    "allDay": false,
+    "location": "c2.05, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Photo Vorlesung",
+    "start": "2026-10-15T12:15:00+02:00",
+    "end": "2026-10-15T13:45:00+02:00",
+    "allDay": false,
+    "location": "a0.07, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "⏳ GDI Abgabe Übungsblatt 3",
+    "start": "2026-10-15T16:00:00+02:00",
+    "end": "2026-10-15T16:00:00+02:00",
+    "allDay": false,
+    "location": ""
+  },
+  {
+    "title": "Photo Gastvortrag",
+    "start": "2026-10-15T18:30:00+02:00",
+    "end": "2026-10-15T20:00:00+02:00",
+    "allDay": false,
+    "location": "Aula, Holzstraße 36, Mainz"
   },
   {
     "title": "Exkursion Vulkaneifel",
@@ -28,10 +63,122 @@
     "location": ""
   },
   {
-    "title": "Fernerkundung (Vorlesung)",
-    "start": "2026-10-19T12:15:00+02:00",
-    "end": "2026-10-19T13:45:00+02:00",
+    "title": "⚠️ Verm5 Nachholtermin",
+    "start": "2026-10-17T10:00:00+02:00",
+    "end": "2026-10-17T13:00:00+02:00",
     "allDay": false,
-    "location": "A 0.07"
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Verm5 Vorlesung",
+    "start": "2026-10-20T08:15:00+02:00",
+    "end": "2026-10-20T09:45:00+02:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "GDI Übung",
+    "start": "2026-10-20T10:00:00+02:00",
+    "end": "2026-10-20T11:30:00+02:00",
+    "allDay": false,
+    "location": "d2.21, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Verm5 Tutorium",
+    "start": "2026-10-21T07:30:00+02:00",
+    "end": "2026-10-21T09:00:00+02:00",
+    "allDay": false,
+    "location": "d1.12"
+  },
+  {
+    "title": "GDI Projektarbeit",
+    "start": "2026-10-21T14:00:00+02:00",
+    "end": "2026-10-21T17:15:00+02:00",
+    "allDay": false,
+    "location": "c2.05, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Photo Vorlesung",
+    "start": "2026-10-22T12:15:00+02:00",
+    "end": "2026-10-22T13:45:00+02:00",
+    "allDay": false,
+    "location": "a0.07, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Fachschaft Stammtisch",
+    "start": "2026-10-22T20:00:00+02:00",
+    "end": "2026-10-22T23:00:00+02:00",
+    "allDay": false,
+    "location": "Kulturcafé, Mainz"
+  },
+  {
+    "title": "Verm5 Vorlesung",
+    "start": "2026-10-27T08:15:00+01:00",
+    "end": "2026-10-27T09:45:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "GDI Übung",
+    "start": "2026-10-27T10:00:00+01:00",
+    "end": "2026-10-27T11:30:00+01:00",
+    "allDay": false,
+    "location": "d2.21, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Verm5 Tutorium",
+    "start": "2026-10-28T07:30:00+01:00",
+    "end": "2026-10-28T09:00:00+01:00",
+    "allDay": false,
+    "location": "d1.12"
+  },
+  {
+    "title": "GDI Projektarbeit",
+    "start": "2026-10-28T14:00:00+01:00",
+    "end": "2026-10-28T17:15:00+01:00",
+    "allDay": false,
+    "location": "c2.05, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Photo Vorlesung",
+    "start": "2026-10-29T12:15:00+01:00",
+    "end": "2026-10-29T13:45:00+01:00",
+    "allDay": false,
+    "location": "a0.07, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Verm5 Vorlesung",
+    "start": "2026-11-03T08:15:00+01:00",
+    "end": "2026-11-03T09:45:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "GDI Übung",
+    "start": "2026-11-03T10:00:00+01:00",
+    "end": "2026-11-03T11:30:00+01:00",
+    "allDay": false,
+    "location": "d2.21, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Verm5 Tutorium",
+    "start": "2026-11-04T07:30:00+01:00",
+    "end": "2026-11-04T09:00:00+01:00",
+    "allDay": false,
+    "location": "d1.12"
+  },
+  {
+    "title": "GDI Projektarbeit",
+    "start": "2026-11-04T14:00:00+01:00",
+    "end": "2026-11-04T17:15:00+01:00",
+    "allDay": false,
+    "location": "c2.05, Holzstraße 36, Mainz"
+  },
+  {
+    "title": "Photo Vorlesung",
+    "start": "2026-11-05T12:15:00+01:00",
+    "end": "2026-11-05T13:45:00+01:00",
+    "allDay": false,
+    "location": "a0.07, Holzstraße 36, Mainz"
   }
 ]
