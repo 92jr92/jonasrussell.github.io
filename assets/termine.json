@@ -1,26 +1,5 @@
 [
   {
-    "title": "⚠️ GDI Vorlesung – KEINE PRÄSENZ (Video statt Präsenz-VL)",
-    "start": "2026-10-13T08:15:00+02:00",
-    "end": "2026-10-13T09:45:00+02:00",
-    "allDay": false,
-    "location": ""
-  },
-  {
-    "title": "Verm5 Übung (Gruppe 2)",
-    "start": "2026-10-13T10:00:00+02:00",
-    "end": "2026-10-13T11:30:00+02:00",
-    "allDay": false,
-    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
-    "title": "Geoinf2 Übung (Gruppe A)",
-    "start": "2026-10-13T14:15:00+02:00",
-    "end": "2026-10-13T16:00:00+02:00",
-    "allDay": false,
-    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
     "title": "Photo Vorlesung",
     "start": "2026-10-14T08:15:00+02:00",
     "end": "2026-10-14T09:45:00+02:00",
@@ -362,5 +341,33 @@
     "end": "2026-11-09T19:30:00+01:00",
     "allDay": false,
     "location": "b1.05/07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "⚠️ GDI Vorlesung – KEINE PRÄSENZ (Vorbereitung hack4GDI_de)",
+    "start": "2026-11-10T08:15:00+01:00",
+    "end": "2026-11-10T09:45:00+01:00",
+    "allDay": false,
+    "location": ""
+  },
+  {
+    "title": "Verm5 Übung (Gruppe 2)",
+    "start": "2026-11-10T10:00:00+01:00",
+    "end": "2026-11-10T11:30:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Geoinf2 Übung (Gruppe A)",
+    "start": "2026-11-10T14:15:00+01:00",
+    "end": "2026-11-10T16:00:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Photo Übung (Gruppe D)",
+    "start": "2026-11-10T16:00:00+01:00",
+    "end": "2026-11-10T17:45:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
   }
 ]
