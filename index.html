@@ -157,24 +157,53 @@
       <h2>Projects</h2>
       <p class="lead">Eine Auswahl meiner Web-Maps und Webseiten.</p>
 
-      <!-- Neue Projekte: einfach eine weitere <article class="card project-card"> kopieren -->
+      <!-- Web-Maps direkt eingebettet (Folium-Exporte aus maps/).
+           Neue Karte: Datei in maps/ ablegen und einen weiteren
+           <section class="map-section"> mit <iframe class="map-frame"> kopieren. -->
+      <div class="map-list">
+        <section class="map-section" aria-labelledby="map-1-title">
+          <h3 id="map-1-title">Basiskarte</h3>
+          <p>Einstieg ins Web-Mapping: eine interaktive OpenStreetMap-Grundkarte von Europa, erstellt mit Python (Folium) und Leaflet.</p>
+          <iframe class="map-frame" src="maps/map_1_basiskarte.html" loading="lazy"
+                  title="Interaktive Karte: OpenStreetMap-Grundkarte von Europa"></iframe>
+        </section>
+
+        <section class="map-section" aria-labelledby="map-2-title">
+          <h3 id="map-2-title">Reiseziele</h3>
+          <p>Fünf meiner Reiseziele von Los Angeles bis Palma de Mallorca als Punktkarte mit Symbol-Markern, Tooltips und Popups.</p>
+          <iframe class="map-frame" src="maps/map_2_punkte.html" loading="lazy"
+                  title="Interaktive Karte: fünf Reiseziele von Los Angeles bis Palma de Mallorca als Marker"></iframe>
+        </section>
+
+        <section class="map-section" aria-labelledby="map-3-title">
+          <h3 id="map-3-title">Reiseroute Schottland</h3>
+          <p>Rundreise in acht nummerierten Etappen von Edinburgh über Glencoe und die Isle of Skye bis St Andrews, dargestellt als Linie mit Stationen.</p>
+          <iframe class="map-frame" src="maps/map_3_reiseroute.html" loading="lazy"
+                  title="Interaktive Karte: Reiseroute durch Schottland mit acht Stationen"></iframe>
+        </section>
+
+        <section class="map-section" aria-labelledby="map-4-title">
+          <h3 id="map-4-title">Bereiste Länder</h3>
+          <p>Flächenkarte der Welt: Die Länder, die ich bereist habe, sind grün hervorgehoben – mit Ländernamen als Tooltip beim Überfahren.</p>
+          <iframe class="map-frame" src="maps/map_4_flaechen_online.html" loading="lazy"
+                  title="Interaktive Weltkarte: bereiste Länder grün hervorgehoben"></iframe>
+        </section>
+
+        <!-- CesiumJS (WebGL): allowfullscreen, damit der Vollbild-Button des Viewers funktioniert -->
+        <section class="map-section" aria-labelledby="map-5-title">
+          <h3 id="map-5-title">3D-Gebäudemodell</h3>
+          <p>Virtueller 3D-Globus mit CesiumJS: LoD2-Gebäudemodelle von basemap.de als 3D-Tiles, Dächer rot eingefärbt, auf der basemap.de-Webkarte. Drehen, Neigen und Zoomen mit der Maus.</p>
+          <iframe class="map-frame" src="maps/map_5_3D_Gebauedemodell_RLP.html" loading="lazy" allowfullscreen
+                  title="Interaktives 3D-Modell: LoD2-Gebäude als 3D-Tiles auf einem virtuellen Globus"></iframe>
+        </section>
+      </div>
+
+      <!-- Weitere Projekte als Karten: einfach eine <article class="card project-card"> kopieren -->
       <div class="card-grid">
-        <article class="card project-card">
-          <h3>Web-Map 1</h3>
-          <p>Platzhalter: Kurzbeschreibung der Web-Map – Thema, Datenquelle und verwendete Technik (z.&nbsp;B. Leaflet, OpenLayers).</p>
-          <a class="card-link" href="#" target="_blank" rel="noopener noreferrer">Zur Karte <span aria-hidden="true">→</span></a>
-        </article>
-
-        <article class="card project-card">
-          <h3>Web-Map 2</h3>
-          <p>Platzhalter: Kurzbeschreibung eines weiteren Kartenprojekts aus dem Studium.</p>
-          <a class="card-link" href="#" target="_blank" rel="noopener noreferrer">Zur Karte <span aria-hidden="true">→</span></a>
-        </article>
-
         <article class="card project-card">
           <h3>Persönliche Webseite</h3>
           <p>Diese Seite: HTML, CSS und Vanilla-JavaScript, gehostet auf GitHub Pages.</p>
-          <a class="card-link" href="https://github.com/USERNAME/jonasrussell.github.io" target="_blank" rel="noopener noreferrer">Quellcode <span aria-hidden="true">→</span></a>
+          <a class="card-link" href="https://github.com/92jr92/jonasrussell.github.io" target="_blank" rel="noopener noreferrer">Quellcode <span aria-hidden="true">→</span></a>
         </article>
       </div>
     </section>

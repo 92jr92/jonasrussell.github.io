@@ -506,6 +506,39 @@ td:nth-child(3)::after {
   transform: translateX(4px);
 }
 
+/* Eingebettete Web-Maps (iframes) im Projects-Tab */
+.map-list {
+  display: grid;
+  gap: 2.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.map-section h3 {
+  margin-bottom: 0.3rem;
+}
+
+.map-section p {
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+}
+
+/* Karten-Optik wie .card: abgerundet, Schatten; Höhe mobil 360 px, ab Tablet 480 px */
+.map-frame {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: 360px;
+  border: 0;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  background: var(--placeholder); /* sichtbar, solange die Karte noch lädt */
+  transition: box-shadow var(--transition);
+}
+
+.map-frame:hover {
+  box-shadow: var(--shadow-hover);
+}
+
 /* ---------- 6b. Termine: Wochenansicht (Stundenplan) ---------- */
 
 /*
@@ -904,6 +937,10 @@ footer {
   .tab {
     flex: 0 0 auto;
     padding: 0.7rem 1rem;
+  }
+
+  .map-frame {
+    height: 480px;
   }
 
   .gallery,
