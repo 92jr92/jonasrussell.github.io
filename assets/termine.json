@@ -1,19 +1,5 @@
 [
   {
-    "title": "Photo Vorlesung",
-    "start": "2026-11-04T08:15:00+01:00",
-    "end": "2026-11-04T09:45:00+01:00",
-    "allDay": false,
-    "location": "d0.01, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
-    "title": "LaMa (Denis)",
-    "start": "2026-11-04T14:15:00+01:00",
-    "end": "2026-11-04T17:45:00+01:00",
-    "allDay": false,
-    "location": "b1.11, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
     "title": "GDI Übung (Gruppe A)",
     "start": "2026-11-05T08:15:00+01:00",
     "end": "2026-11-05T09:45:00+01:00",
@@ -341,5 +327,19 @@
     "end": "2026-12-01T17:45:00+01:00",
     "allDay": false,
     "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Photo Vorlesung",
+    "start": "2026-12-02T08:15:00+01:00",
+    "end": "2026-12-02T09:45:00+01:00",
+    "allDay": false,
+    "location": "d0.01, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "LaMa (Denis)",
+    "start": "2026-12-02T14:15:00+01:00",
+    "end": "2026-12-02T17:45:00+01:00",
+    "allDay": false,
+    "location": "b1.11, Lucy-Hillebrand-Straße 2, Mainz"
   }
 ]
