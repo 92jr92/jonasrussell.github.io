@@ -1,33 +1,5 @@
 [
   {
-    "title": "Selbstständige Vorbereitung - hack4GDI_de",
-    "start": "2026-11-10T08:15:00+01:00",
-    "end": "2026-11-10T09:45:00+01:00",
-    "allDay": false,
-    "location": ""
-  },
-  {
-    "title": "Verm5 Übung (Gruppe 2)",
-    "start": "2026-11-10T10:00:00+01:00",
-    "end": "2026-11-10T11:30:00+01:00",
-    "allDay": false,
-    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
-    "title": "Geoinf2 Übung (Gruppe A)",
-    "start": "2026-11-10T14:15:00+01:00",
-    "end": "2026-11-10T16:00:00+01:00",
-    "allDay": false,
-    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
-    "title": "Photo Übung (Gruppe D)",
-    "start": "2026-11-10T16:00:00+01:00",
-    "end": "2026-11-10T17:45:00+01:00",
-    "allDay": false,
-    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
-  },
-  {
     "title": "Photo Vorlesung",
     "start": "2026-11-11T08:15:00+01:00",
     "end": "2026-11-11T09:45:00+01:00",
@@ -334,5 +306,33 @@
     "end": "2026-12-07T15:00:00+01:00",
     "allDay": false,
     "location": "c0.06, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "GDI Vorlesung",
+    "start": "2026-12-08T08:15:00+01:00",
+    "end": "2026-12-08T09:45:00+01:00",
+    "allDay": false,
+    "location": "b1.10, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Verm5 Übung (Gruppe 2)",
+    "start": "2026-12-08T10:00:00+01:00",
+    "end": "2026-12-08T11:30:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Geoinf2 Übung (Gruppe A)",
+    "start": "2026-12-08T14:15:00+01:00",
+    "end": "2026-12-08T16:00:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
+  },
+  {
+    "title": "Photo Übung (Gruppe D)",
+    "start": "2026-12-08T16:00:00+01:00",
+    "end": "2026-12-08T17:45:00+01:00",
+    "allDay": false,
+    "location": "d1.07, Lucy-Hillebrand-Straße 2, Mainz"
   }
 ]
